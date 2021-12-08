@@ -16,6 +16,11 @@ class MonitorProcess(BaseModel):
 
 @app.get("/monitor/processes/", response_model=List[MonitorProcess])
 async def list_user_processes():
+    """Get all process monitors from all users from the database
+
+    Returns:
+        List[MonitorProcess]: A list of MonitorProcesses 
+    """
     sql: str = "SELECT * FROM monitor"
     query_result = readDB(sql)
 
@@ -32,6 +37,14 @@ async def list_user_processes():
 
 @app.get("/monitor/processes/{user_id}", response_model=List[MonitorProcess])
 async def list_user_processes(user_id: str):
+    """Get all process monitors from a specific user from the database
+
+    Args:
+        user_id (str): The user id
+
+    Returns:
+        List[MonitorProcess]: A list of MonitorProcesses
+    """
     sql: str = "SELECT * FROM monitor WHERE user_id = %s"
     query_result = readDB(sql, (user_id,))
 
@@ -48,6 +61,14 @@ async def list_user_processes(user_id: str):
 
 @app.delete("/monitor/processes/{user_id}")
 async def delete_user_process(user_id: str):
+    """Delete all process monitors from a user from the database
+
+    Args:
+        user_id (str): A user id
+
+    Returns:
+        str: A status (may change)
+    """
     sql: str = "DELETE FROM monitor WHERE user_id = %s"
 
     writeDB(sql, (user_id,))
@@ -56,6 +77,14 @@ async def delete_user_process(user_id: str):
 
 @app.post("/monitor/process/")
 async def create_user_process(process: MonitorProcess):
+    """Add a process monitor to the database
+
+    Args:
+        process (MonitorProcess): Process data
+
+    Returns:
+        str: A status
+    """
     process_dict: dict = process.dict()
     sql, values = mysql_query_insert(process_dict, "monitor")
 
@@ -66,6 +95,14 @@ async def create_user_process(process: MonitorProcess):
 
 @app.delete("/monitor/process/{computation_id}")
 async def delete_user_process(computation_id: str):
+    """Delete a single process monitor from the database
+
+    Args:
+        computation_id (str): A computation id
+
+    Returns:
+        str: A status
+    """
     sql: str = "DELETE FROM monitor WHERE computation_id = %s"
     writeDB(sql, (computation_id,))
 
@@ -73,6 +110,15 @@ async def delete_user_process(computation_id: str):
 
 
 def mysql_query_insert(dict: dict, table: str):
+    """Create a prepared sql statement along with its values from a dictionary and a table name
+
+    Args:
+        dict (dict): The dictionary whose values should be inserted into the database
+        table (str): The table to insert into
+
+    Returns:
+        tuple(str, tuple): The prepared statement (str) and the values (tuple)
+    """
     placeholders = ', '.join(['%s'] * len(dict))
     columns = ', '.join("`" + str(x).replace('/', '_') +
                         "`" for x in dict.keys())
@@ -82,8 +128,13 @@ def mysql_query_insert(dict: dict, table: str):
 
     return prepared_statement, values
 
-
 def writeDB(sql_prepared_statement: str, sql_placeholder_values: tuple=()):
+    """Take a prepared statement with values and writes to database
+
+    Args:
+        sql_prepared_statement (str): an sql statement with (optional) placeholder values
+        sql_placeholder_values (tuple, optional): The values for the prepared statement. Defaults to ().
+    """
     connection = mysql.connector.connect(host='localhost',
                                          database='cloudsolver',
                                          user='root',
@@ -97,6 +148,15 @@ def writeDB(sql_prepared_statement: str, sql_placeholder_values: tuple=()):
 
 
 def readDB(sql_prepared_statement: str, sql_placeholder_values: tuple=()):
+    """Take a prepared statement with values and makes a query to the database
+
+    Args:
+        sql_prepared_statement (str): an sql statement with (optional) placeholder values
+        sql_placeholder_values (tuple, optional): The values for the prepared statement. Defaults to ().
+
+    Returns:
+        List(tuple): The fetched result
+    """
     connection = mysql.connector.connect(host='localhost',
                                          database='cloudsolver',
                                          user='root',
@@ -109,126 +169,3 @@ def readDB(sql_prepared_statement: str, sql_placeholder_values: tuple=()):
         result = cursor.fetchall()
 
     return result
-
-
-def writeToDB(user_id: str, operation: str, item):
-    try:
-        connection = mysql.connector.connect(host='quotas-mysql-0',
-                                             database='Default',
-                                             user='root'
-                                             )
-
-        if connection.is_connected():
-            mycursor = connection.cursor()
-            if operation == "upMemory":
-                # Check to see if the userID exits in the database
-                sqlquery = "SELECT COUNT(*) FROM quotastabel WHERE User_id =" + \
-                    "\"" + user_id + "\""
-                mycursor.execute(sqlquery)
-                resultFromquery = mycursor.fetchall()[0][0]
-
-                if resultFromquery == 1:
-                    mysqlquery = "UPDATE quotastabel SET Memory = " + "\'" + \
-                        str(item) + "\' " + "WHERE User_id = " + \
-                        "\"" + user_id + "\""
-                    mycursor.execute(mysqlquery)
-
-                    connection.commit()
-
-                    print("Memory for user " + user_id + " updated")
-
-                    statusCode = 200
-
-                    return statusCode
-
-                else:
-                    print("No user found")
-                    statusCode = 404
-
-                    return statusCode
-
-            elif operation == "upVcpu":
-                # Check to see if the userID exits in the database
-                sqlquery = "SELECT COUNT(*) FROM quotastabel WHERE User_id =" + \
-                    "\"" + user_id + "\""
-                mycursor.execute(sqlquery)
-                resultFromquery = mycursor.fetchall()[0][0]
-
-                if resultFromquery == 1:
-                    mysqlquery = "UPDATE quotastabel SET Vcpu = " + "\'" + \
-                        str(item) + "\' " + "WHERE User_id = " + \
-                        "\"" + user_id + "\""
-                    mycursor.execute(mysqlquery)
-
-                    connection.commit()
-
-                    print("CPU for user " + user_id + " updated")
-
-                    statusCode = 200
-
-                    return statusCode
-
-                else:
-                    print("No user found")
-
-                    statusCode = 404
-
-                    return statusCode
-
-    except Error as e:
-        print("Error while connecting to MySQL", e)
-
-    finally:
-        if connection.is_connected():
-            mycursor.close()
-            connection.close()
-            print("MySQL connection is closed")
-
-
-def readFromDB(user_id):
-    try:
-        connection = mysql.connector.connect(host='quotas-mysql-0',
-                                             database='Default',
-                                             user='root'
-                                             )
-
-        if connection.is_connected():
-            mycursor = connection.cursor()
-            # Check to see if the userID exits in the database
-            sqlquery = "SELECT COUNT(*) FROM quotastabel WHERE User_id =" + \
-                "\"" + user_id + "\""
-            mycursor.execute(sqlquery)
-            resultFromquery = mycursor.fetchall()[0][0]
-
-            if resultFromquery == 1:
-                mysqlquery = "SELECT Vcpu, Memory From quotastabel WHERE User_id = " + \
-                    "\"" + user_id + "\""
-                mycursor.execute(mysqlquery)
-
-                resultFromquery = mycursor.fetchall()
-                print("succes user_id found")
-
-                valueCPU = resultFromquery[0][0]
-                valueMemory = resultFromquery[0][1]
-
-                print("For user " + user_id +
-                      " the number of vcpus is " + str(valueCPU))
-                print("For user " + user_id +
-                      " the number of Memory is " + str(valueMemory))
-
-                return valueMemory, valueCPU
-
-            else:
-                valueCPU = -1
-                valueMemory = -1
-
-                return valueMemory, valueCPU
-
-    except Error as e:
-        print("Error while connecting to MySQL", e)
-
-    finally:
-        if connection.is_connected():
-            mycursor.close()
-            connection.close()
-            print("MySQL connection is closed")
