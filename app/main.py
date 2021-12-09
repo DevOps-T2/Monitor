@@ -108,7 +108,7 @@ async def delete_user_process(user_id: str):
     return "done boss"
 
 
-@app.post("/monitor/process/")
+@app.post("/monitor/process/", response_model=GetMonitorProcess)
 async def create_user_process(process: PostMonitorProcess):
     """Add a process monitor to the database
 
@@ -127,27 +127,12 @@ async def create_user_process(process: PostMonitorProcess):
 
     writeDB(sql, values)
 
-    return "done bose"
+    return sync_get_user_process(process.computation_id)
 
 
 @app.get("/monitor/process/{computation_id}", response_model=GetMonitorProcess)
-async def create_user_process(computation_id):
-    columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
-    sql: str = "SELECT %s FROM monitor" % columns + " WHERE computation_id = %s"
-    values: tuple = (computation_id,)
-    query_result = readDB(sql, values)
-
-    if(len(query_result) == 0):
-        raise HTTPException(
-            status_code=404, detail="A process with computation_id = '%s' does not exist." % computation_id)
-    else:
-        process_tuple = query_result[0]
-        process = GetMonitorProcess(id=process_tuple[0],
-                                    user_id=process_tuple[1],
-                                    computation_id=process_tuple[2],
-                                    vcpu_usage=process_tuple[3],
-                                    memory_usage=process_tuple[4])
-        return process
+async def get_user_process(computation_id):
+    return sync_get_user_process(computation_id)
 
 
 @app.delete("/monitor/process/{computation_id}")
@@ -170,6 +155,23 @@ async def delete_user_process(computation_id: str):
 
     return "done boss"
 
+def sync_get_user_process(computation_id):
+    columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
+    sql: str = "SELECT %s FROM monitor" % columns + " WHERE computation_id = %s"
+    values: tuple = (computation_id,)
+    query_result = readDB(sql, values)
+
+    if(len(query_result) == 0):
+        raise HTTPException(
+            status_code=404, detail="A process with computation_id = '%s' does not exist." % computation_id)
+    else:
+        process_tuple = query_result[0]
+        process = GetMonitorProcess(id=process_tuple[0],
+                                    user_id=process_tuple[1],
+                                    computation_id=process_tuple[2],
+                                    vcpu_usage=process_tuple[3],
+                                    memory_usage=process_tuple[4])
+        return process
 
 def mysql_query_insert(dict: dict, table: str):
     """Create a prepared sql statement along with its values from a dictionary and a table name
