@@ -38,7 +38,7 @@ async def list_user_processes():
     """Get all process monitors from all users from the database
 
     Returns:
-        List[MonitorProcess]: A list of MonitorProcesses 
+        List[GetMonitorProcess]: A list of GetMonitorProcesses 
     """
 
     # Getting the GetMonitorProcess properties to use in sql statement,
@@ -69,7 +69,7 @@ async def list_user_processes(user_id: str):
         user_id (str): The user id
 
     Returns:
-        List[MonitorProcess]: A list of MonitorProcesses
+        List[GetMonitorProcess]: A list of GetMonitorProcesses
     """
     columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
     sql: str = "SELECT %s FROM monitor" % columns + " WHERE user_id = %s"
@@ -105,7 +105,7 @@ async def delete_user_process(user_id: str):
 
     writeDB(sql, (user_id,))
 
-    return "done boss"
+    return "Successfully deleted processes with user_id = %s" % user_id
 
 
 @app.post("/monitor/process/", response_model=GetMonitorProcess)
@@ -113,7 +113,7 @@ async def create_user_process(process: PostMonitorProcess):
     """Add a process monitor to the database
 
     Args:
-        process (MonitorProcess): Process data
+        process (GetMonitorProcess): Process data
 
     Returns:
         str: A status
@@ -132,6 +132,7 @@ async def create_user_process(process: PostMonitorProcess):
 
 @app.get("/monitor/process/{computation_id}", response_model=GetMonitorProcess)
 async def get_user_process(computation_id):
+    """Just runs sync_get_user_process"""
     return sync_get_user_process(computation_id)
 
 
@@ -153,9 +154,18 @@ async def delete_user_process(computation_id: str):
     sql: str = "DELETE FROM monitor WHERE computation_id = %s"
     writeDB(sql, (computation_id,))
 
-    return "done boss"
+    return "Successfully deleted process with computation_id = %s" % computation_id
 
 def sync_get_user_process(computation_id):
+    """Gets a single user process by computation_id. This function was created as a synchronous function,
+    so it can be re-used
+
+    Args:
+        computation_id (str): A computation id
+
+    Returns:
+        (GetMonitorProcess): A single GetMonitorProcess
+    """
     columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
     sql: str = "SELECT %s FROM monitor" % columns + " WHERE computation_id = %s"
     values: tuple = (computation_id,)
@@ -213,7 +223,7 @@ def process_exists(column: str, value):
 
 
 def writeDB(sql_prepared_statement: str, sql_placeholder_values: tuple = ()):
-    """Take a prepared statement with values and writes to database
+    """Takes a prepared statement with values and writes to database
 
     Args:
         sql_prepared_statement (str): an sql statement with (optional) placeholder values
@@ -239,7 +249,7 @@ def writeDB(sql_prepared_statement: str, sql_placeholder_values: tuple = ()):
 
 
 def readDB(sql_prepared_statement: str, sql_placeholder_values: tuple = ()):
-    """Take a prepared statement with values and makes a query to the database
+    """Takes a prepared statement with values and makes a query to the database
 
     Args:
         sql_prepared_statement (str): an sql statement with (optional) placeholder values
