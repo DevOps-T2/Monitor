@@ -263,10 +263,15 @@ def readDB(sql_prepared_statement: str, sql_placeholder_values: tuple = ()):
                                          user=DATABASE_USER,
                                          password=DATABASE_PASSWORD
                                          )
-
-    if (connection.is_connected()):
-        cursor = connection.cursor(prepared=True)
-        cursor.execute(sql_prepared_statement, sql_placeholder_values)
-        result = cursor.fetchall()
-
-    return result
+    try:
+        if (connection.is_connected()):
+            cursor = connection.cursor(prepared=True)
+            cursor.execute(sql_prepared_statement, sql_placeholder_values)
+            result = cursor.fetchall()
+            return result
+    except Error as e:
+        raise HTTPException(
+            status_code=500, detail="Error while contacting database. " + str(e))
+    finally:
+        cursor.close()
+        connection.close()
