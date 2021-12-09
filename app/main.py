@@ -23,8 +23,14 @@ class PostMonitorProcess(BaseModel):
     vcpu_usage: int
     memory_usage: int
 
-class GetMonitorProcess(PostMonitorProcess):
+# Coule use PostMonitorProcess instead of BaseModel but that would put "id" at the bottom
+# which would mess up the structure of sq statements later
+class GetMonitorProcess(BaseModel):
     id: int
+    user_id: str
+    computation_id: str
+    vcpu_usage: int
+    memory_usage: int
 
 
 @app.get("/monitor/processes/", response_model=List[GetMonitorProcess])
@@ -34,17 +40,23 @@ async def list_user_processes():
     Returns:
         List[MonitorProcess]: A list of MonitorProcesses 
     """
-    sql: str = "SELECT * FROM monitor"
+
+    # Getting the GetMonitorProcess properties to use in sql statement,
+    # because the order of columns needs to be explicit (i.e. not = '*') because 
+    # the query_result has no keys, only values.
+    columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
+    sql: str = "SELECT %s FROM monitor" % columns
     query_result = readDB(sql)
+    print(query_result)
 
     processes: List[GetMonitorProcess] = []
     for process in query_result:
         processes.append(
             GetMonitorProcess(id=process[0],
-                           user_id=process[1],
-                           computation_id=process[2],
-                           vcpu_usage=process[3],
-                           memory_usage=process[4]))
+                              user_id=process[1],
+                              computation_id=process[2],
+                              vcpu_usage=process[3],
+                              memory_usage=process[4]))
 
     return processes
 
@@ -59,17 +71,18 @@ async def list_user_processes(user_id: str):
     Returns:
         List[MonitorProcess]: A list of MonitorProcesses
     """
-    sql: str = "SELECT * FROM monitor WHERE user_id = %s"
+    columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
+    sql: str = "SELECT %s FROM monitor" % columns + " WHERE user_id = %s"
     query_result = readDB(sql, (user_id,))
 
     processes: List[GetMonitorProcess] = []
     for process in query_result:
         processes.append(
             GetMonitorProcess(id=process[0],
-                           user_id=process[1],
-                           computation_id=process[2],
-                           vcpu_usage=process[3],
-                           memory_usage=process[4]))
+                              user_id=process[1],
+                              computation_id=process[2],
+                              vcpu_usage=process[3],
+                              memory_usage=process[4]))
 
     return processes
 
@@ -114,7 +127,27 @@ async def create_user_process(process: PostMonitorProcess):
 
     writeDB(sql, values)
 
-    return "done boss"
+    return "done bose"
+
+
+@app.get("/monitor/process/{computation_id}", response_model=GetMonitorProcess)
+async def create_user_process(computation_id):
+    columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
+    sql: str = "SELECT %s FROM monitor" % columns + " WHERE computation_id = %s"
+    values: tuple = (computation_id,)
+    query_result = readDB(sql, values)
+
+    if(len(query_result) == 0):
+        raise HTTPException(
+            status_code=404, detail="A process with computation_id = '%s' does not exist." % computation_id)
+    else:
+        process_tuple = query_result[0]
+        process = GetMonitorProcess(id=process_tuple[0],
+                                    user_id=process_tuple[1],
+                                    computation_id=process_tuple[2],
+                                    vcpu_usage=process_tuple[3],
+                                    memory_usage=process_tuple[4])
+        return process
 
 
 @app.delete("/monitor/process/{computation_id}")
