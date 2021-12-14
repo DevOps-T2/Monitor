@@ -131,17 +131,17 @@ async def create_user_process(process: PostMonitorProcess):
 
 
 @app.get("/monitor/process/{computation_id}", response_model=GetMonitorProcess)
-async def get_user_process(computation_id):
+async def get_user_process(computation_id: int):
     """Just runs sync_get_user_process"""
     return sync_get_user_process(computation_id)
 
 
 @app.delete("/monitor/process/{computation_id}")
-async def delete_user_process(computation_id: str):
+async def delete_user_process(computation_id: int):
     """Delete a single process monitor from the database
 
     Args:
-        computation_id (str): A computation id
+        computation_id (int): A computation id
 
     Returns:
         str: A status
@@ -161,7 +161,7 @@ def sync_get_user_process(computation_id):
     so it can be re-used
 
     Args:
-        computation_id (str): A computation id
+        computation_id (int): A computation id
 
     Returns:
         (GetMonitorProcess): A single GetMonitorProcess
