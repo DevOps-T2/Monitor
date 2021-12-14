@@ -40,7 +40,7 @@ async def list_user_processes():
     Returns:
         List[GetMonitorProcess]: A list of GetMonitorProcesses 
     """
-
+    print(DATABASE_NAME)
     # Getting the GetMonitorProcess properties to use in sql statement,
     # because the order of columns needs to be explicit (i.e. not = '*') because 
     # the query_result has no keys, only values.
