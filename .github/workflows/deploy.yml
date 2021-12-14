@@ -68,6 +68,7 @@ jobs:
         echo DATABASE_USER=$DATABASE_USER >> .env
         echo DATABASE_PASSWORD=$DATABASE_PASSWORD >> .env
         cat .env
+        ls -a
 
     # Build the Docker image
     - name: Build
