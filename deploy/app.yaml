@@ -26,6 +26,7 @@ metadata:
   labels:
     app: monitor
 spec:
+  kind: LoadBalancer
   ports:
     - port: 80
   selector:
