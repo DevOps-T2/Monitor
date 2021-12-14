@@ -19,7 +19,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: dev cluster-1    # TODO: update to cluster name
+  GKE_CLUSTER: dev    # TODO: update to cluster name
   GKE_ZONE: europe-west1-b   # TODO: update to cluster zone
   DEPLOYMENT_NAME: monitor # TODO: update to deployment name
   IMAGE: monitor
