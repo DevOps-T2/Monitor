@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 app = FastAPI()
 load_dotenv()
 
-DATABASE = os.getenv("DATABASE")
+DATABASE_NAME = os.getenv("DATABASE_NAME")
 DATABASE_HOST_READ = os.getenv("DATABASE_HOST_READ")
 DATABASE_HOST_WRITE = os.getenv("DATABASE_HOST_WRITE")
 DATABASE_USER = os.getenv("DATABASE_USER")
@@ -229,7 +229,7 @@ def writeDB(sql_prepared_statement: str, sql_placeholder_values: tuple = ()):
         sql_prepared_statement (str): an sql statement with (optional) placeholder values
         sql_placeholder_values (tuple, optional): The values for the prepared statement. Defaults to ().
     """
-    connection = mysql.connector.connect(database=DATABASE,
+    connection = mysql.connector.connect(database=DATABASE_NAME,
                                          host=DATABASE_HOST_WRITE,
                                          user=DATABASE_USER,
                                          password=DATABASE_PASSWORD
@@ -258,7 +258,7 @@ def readDB(sql_prepared_statement: str, sql_placeholder_values: tuple = ()):
     Returns:
         List(tuple): The fetched result
     """
-    connection = mysql.connector.connect(database=DATABASE,
+    connection = mysql.connector.connect(database=DATABASE_NAME,
                                          host=DATABASE_HOST_READ,
                                          user=DATABASE_USER,
                                          password=DATABASE_PASSWORD
