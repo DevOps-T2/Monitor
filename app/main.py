@@ -19,7 +19,7 @@ DATABASE_PASSWORD = '' # os.getenv("DATABASE_PASSWORD")
 
 class PostMonitorProcess(BaseModel):
     user_id: str
-    computation_id: str
+    computation_id: int
     vcpu_usage: int
     memory_usage: int
 
@@ -28,7 +28,7 @@ class PostMonitorProcess(BaseModel):
 class GetMonitorProcess(BaseModel):
     id: int
     user_id: str
-    computation_id: str
+    computation_id: int
     vcpu_usage: int
     memory_usage: int
 
