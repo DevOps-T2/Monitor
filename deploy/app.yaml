@@ -26,7 +26,6 @@ metadata:
   labels:
     app: monitor
 spec:
-  type: LoadBalancer # temporary, remove later
   ports:
     - port: 80
   selector:
