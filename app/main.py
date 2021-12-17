@@ -19,7 +19,7 @@ DATABASE_PASSWORD = '' # os.getenv("DATABASE_PASSWORD")
 
 class PostMonitorProcess(BaseModel):
     user_id: str
-    computation_id: int
+    computation_id: str
     vcpu_usage: int
     memory_usage: int
 
@@ -28,7 +28,7 @@ class PostMonitorProcess(BaseModel):
 class GetMonitorProcess(BaseModel):
     id: int
     user_id: str
-    computation_id: int
+    computation_id: str
     vcpu_usage: int
     memory_usage: int
 
@@ -131,17 +131,17 @@ async def create_user_process(process: PostMonitorProcess):
 
 
 @app.get("/monitor/process/{computation_id}", response_model=GetMonitorProcess)
-async def get_user_process(computation_id: int):
+async def get_user_process(computation_id: str):
     """Just runs sync_get_user_process"""
     return sync_get_user_process(computation_id)
 
 
 @app.delete("/monitor/process/{computation_id}")
-async def delete_user_process(computation_id: int):
+async def delete_user_process(computation_id: str):
     """Delete a single process monitor from the database
 
     Args:
-        computation_id (int): A computation id
+        computation_id (str): A computation id
 
     Returns:
         str: A status
