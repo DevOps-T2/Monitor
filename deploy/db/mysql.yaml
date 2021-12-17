@@ -1,7 +1,7 @@
 apiVersion: v1
 data:
   initdb-sql.sql: "CREATE TABLE IF NOT EXISTS Default.monitor (\nid INTEGER NOT NULL
-    AUTO_INCREMENT,\nuser_id VARCHAR(255) NOT NULL,\ncomputation_id INTEGER NOT NULL,\nvcpu_usage
+    AUTO_INCREMENT,\nuser_id VARCHAR(255) NOT NULL,\ncomputation_id VARCHAR(255) NOT NULL,\nvcpu_usage
     INTEGER NOT NULL,\nmemory_usage INTEGER NOT NULL, \nPRIMARY KEY (id)\n);"
 kind: ConfigMap
 metadata:
