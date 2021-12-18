@@ -108,7 +108,7 @@ async def delete_user_process(user_id: str):
     return "Successfully deleted processes with user_id = %s" % user_id
 
 
-@app.post("/monitor/process/", response_model=GetMonitorProcess)
+@app.post("/monitor/process", response_model=GetMonitorProcess)
 async def create_user_process(process: PostMonitorProcess):
     """Add a process monitor to the database
 
