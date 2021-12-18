@@ -6,6 +6,9 @@ metadata:
   name: monitor
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: monitor-app
   template:
     metadata:
       labels:
