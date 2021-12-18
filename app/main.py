@@ -7,14 +7,14 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 
-app = FastAPI(root_path='/api/monitor')
+app = FastAPI()
 load_dotenv()
 
 DATABASE_NAME = os.getenv("DATABASE_NAME")
 DATABASE_HOST_READ = os.getenv("DATABASE_HOST_READ")
 DATABASE_HOST_WRITE = os.getenv("DATABASE_HOST_WRITE")
 DATABASE_USER = os.getenv("DATABASE_USER")
-DATABASE_PASSWORD = '' # os.getenv("DATABASE_PASSWORD")
+DATABASE_PASSWORD = "" # os.getenv("DATABASE_PASSWORD")
 
 
 class PostMonitorProcess(BaseModel):
