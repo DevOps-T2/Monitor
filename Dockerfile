@@ -12,6 +12,6 @@ COPY ./.env /code/app/.env
 
 WORKDIR /code/app
 
-CMD ["uvicorn", "main:app", "--root-path", "/api/monitor/", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "main:app", "--root-path", "/api/monitor", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
 
 EXPOSE 80
