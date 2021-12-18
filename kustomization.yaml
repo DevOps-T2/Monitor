@@ -1,3 +1,5 @@
+commonLabels:
+  app: monitor-app
 resources:
   - deploy/app.yaml
   - deploy/db/init.yaml
