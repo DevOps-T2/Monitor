@@ -33,7 +33,7 @@ class GetMonitorProcess(BaseModel):
     memory_usage: int
 
 
-@app.get("/monitor/processes/", response_model=List[GetMonitorProcess])
+@app.get("/monitor/processes", response_model=List[GetMonitorProcess])
 async def list_user_processes():
     """Get all process monitors from all users from the database
 
