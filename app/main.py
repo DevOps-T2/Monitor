@@ -7,7 +7,7 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 
-app = FastAPI(root_path="/api/monitor/")
+app = FastAPI(openapi_url='/api/monitor/openapi.json')
 load_dotenv()
 
 DATABASE_NAME = os.getenv("DATABASE_NAME")
