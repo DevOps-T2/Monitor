@@ -63,8 +63,8 @@ async def list_user_processes():
 
     return processes
 
-@router.get("/api/monitor/processes{user_id}", response_model=List[GetMonitorProcess])
-@router.get("/api/monitor/processes/{user_id}", response_model=List[GetMonitorProcess], include_in_schema=False)
+@router.get("/api/monitor/processes/{user_id}", response_model=List[GetMonitorProcess])
+@router.get("/api/monitor/processes/{user_id}/", response_model=List[GetMonitorProcess], include_in_schema=False)
 async def list_user_processes(user_id: str):
     """Get all process monitors from a specific user from the database
 
