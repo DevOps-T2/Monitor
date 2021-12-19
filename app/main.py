@@ -1,13 +1,14 @@
 from typing import List
 import os
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 
 app = FastAPI()
+router = APIRouter()
 load_dotenv()
 
 DATABASE_NAME = os.getenv("DATABASE_NAME")
@@ -32,8 +33,8 @@ class GetMonitorProcess(BaseModel):
     vcpu_usage: int
     memory_usage: int
 
-
 @app.get("/monitor/processes", response_model=List[GetMonitorProcess])
+@app.get("/monitor/processes/", response_model=List[GetMonitorProcess], include_in_schema=False)
 async def list_user_processes():
     """Get all process monitors from all users from the database
 
@@ -60,8 +61,8 @@ async def list_user_processes():
 
     return processes
 
-
-@app.get("/monitor/processes/{user_id}", response_model=List[GetMonitorProcess])
+@app.get("/monitor/processes{user_id}", response_model=List[GetMonitorProcess])
+@app.get("/monitor/processes/{user_id}", response_model=List[GetMonitorProcess], include_in_schema=False)
 async def list_user_processes(user_id: str):
     """Get all process monitors from a specific user from the database
 
@@ -88,6 +89,7 @@ async def list_user_processes(user_id: str):
 
 
 @app.delete("/monitor/processes/{user_id}")
+@app.delete("/monitor/processes/{user_id}/", include_in_schema=False)
 async def delete_user_process(user_id: str):
     """Delete all process monitors from a user from the database
 
@@ -109,6 +111,7 @@ async def delete_user_process(user_id: str):
 
 
 @app.post("/monitor/process", response_model=GetMonitorProcess)
+@app.post("/monitor/process/", response_model=GetMonitorProcess, include_in_schema=False)
 async def create_user_process(process: PostMonitorProcess):
     """Add a process monitor to the database
 
@@ -131,12 +134,14 @@ async def create_user_process(process: PostMonitorProcess):
 
 
 @app.get("/monitor/process/{computation_id}", response_model=GetMonitorProcess)
+@app.get("/monitor/process/{computation_id}/", response_model=GetMonitorProcess, include_in_schema=False)
 async def get_user_process(computation_id: str):
     """Just runs sync_get_user_process"""
     return sync_get_user_process(computation_id)
 
 
 @app.delete("/monitor/process/{computation_id}")
+@app.delete("/monitor/process/{computation_id}/", include_in_schema=False)
 async def delete_user_process(computation_id: str):
     """Delete a single process monitor from the database
 
