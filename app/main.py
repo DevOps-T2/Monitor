@@ -1,7 +1,7 @@
 from typing import List
 import os
 
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, Request
 from pydantic import BaseModel
 import mysql.connector
 from mysql.connector import Error
@@ -37,12 +37,19 @@ router = APIRouter()
 
 @router.get("/api/monitor/processes", response_model=List[GetMonitorProcess])
 @router.get("/api/monitor/processes/", response_model=List[GetMonitorProcess], include_in_schema=False)
-async def list_user_processes():
+async def list_user_processes(req: Request):
     """Get all process monitors from all users from the database
 
     Returns:
         List[GetMonitorProcess]: A list of GetMonitorProcesses 
     """
+
+    # Only admin has access to this endpoint
+    role = req.headers.get("Role")
+
+    if(role != "admin"):
+        raise HTTPException(status_code=403) 
+
     print(DATABASE_NAME)
     # Getting the GetMonitorProcess properties to use in sql statement,
     # because the order of columns needs to be explicit (i.e. not = '*') because 
@@ -65,7 +72,7 @@ async def list_user_processes():
 
 @router.get("/api/monitor/processes/{user_id}", response_model=List[GetMonitorProcess])
 @router.get("/api/monitor/processes/{user_id}/", response_model=List[GetMonitorProcess], include_in_schema=False)
-async def list_user_processes(user_id: str):
+async def list_user_processes(user_id: str, req: Request):
     """Get all process monitors from a specific user from the database
 
     Args:
@@ -74,6 +81,15 @@ async def list_user_processes(user_id: str):
     Returns:
         List[GetMonitorProcess]: A list of GetMonitorProcesses
     """
+
+    #Both admin and user has access to this endpoint. But it needs to be to a specific user. 
+    userId = req.headers.get("UserId")
+
+    if(userId != user_id):
+        raise HTTPException(status_code=403)
+
+
+
     columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
     sql: str = "SELECT %s FROM monitor" % columns + " WHERE user_id = %s"
     query_result = readDB(sql, (user_id,))
@@ -92,7 +108,7 @@ async def list_user_processes(user_id: str):
 
 @router.delete("/api/monitor/processes/{user_id}")
 @router.delete("/api/monitor/processes/{user_id}/", include_in_schema=False)
-async def delete_user_process(user_id: str):
+async def delete_user_process(user_id: str, req: Request):
     """Delete all process monitors from a user from the database
 
     Args:
@@ -101,6 +117,17 @@ async def delete_user_process(user_id: str):
     Returns:
         str: A status (may change)
     """
+
+
+    # Only the admin role has access to this endponit. 
+    role = req.headers.get("Role")
+    userId = req.headers.get("UserId")
+
+    if(role != "admin" and userId != user_id):
+        raise HTTPException(status_code=403) 
+
+
+
     if(process_exists(column="user_id", value=user_id) == False):
         raise HTTPException(
             status_code=404, detail="No process with user_id = '%s' exists." % user_id)
@@ -114,7 +141,7 @@ async def delete_user_process(user_id: str):
 
 @router.post("/api/monitor/process", response_model=GetMonitorProcess)
 @router.post("/api/monitor/process/", response_model=GetMonitorProcess, include_in_schema=False)
-async def create_user_process(process: PostMonitorProcess):
+async def create_user_process(process: PostMonitorProcess, req: Request):
     """Add a process monitor to the database
 
     Args:
@@ -123,6 +150,13 @@ async def create_user_process(process: PostMonitorProcess):
     Returns:
         str: A status
     """
+
+    # Only admin role has access to this endpoint.
+    role = req.headers.get("Role")
+
+    if(role != "admin"):
+        raise HTTPException(status_code=403)
+
     if(process_exists(column="computation_id", value=process.computation_id)):
         raise HTTPException(
             status_code=409, detail="A process with computation_id = '%s' already exists." % process.computation_id)
@@ -137,14 +171,22 @@ async def create_user_process(process: PostMonitorProcess):
 
 @router.get("/api/monitor/process/{computation_id}", response_model=GetMonitorProcess)
 @router.get("/api/monitor/process/{computation_id}/", response_model=GetMonitorProcess, include_in_schema=False)
-async def get_user_process(computation_id: str):
+async def get_user_process(computation_id: str, req: Request):
     """Just runs sync_get_user_process"""
+
+    # Only admin role has access to this endpoint. And the computation id need to match
+    role = req.headers.get("Role")
+    computationID = req.headers.get("computation_id")
+
+    if(role != "admin" and computationID != computation_id):
+        raise HTTPException(status_code=403)
+
     return sync_get_user_process(computation_id)
 
 
 @router.delete("/api/monitor/process/{computation_id}")
 @router.delete("/api/monitor/process/{computation_id}/", include_in_schema=False)
-async def delete_user_process(computation_id: str):
+async def delete_user_process(computation_id: str, req: Request):
     """Delete a single process monitor from the database
 
     Args:
@@ -153,6 +195,13 @@ async def delete_user_process(computation_id: str):
     Returns:
         str: A status
     """
+
+    # Only admin role has access to this endpoint.
+    role = req.headers.get("Role")
+    computationID = req.headers.get("computation_id")
+
+    if(role != "admin" and computationID != computation_id):
+        raise HTTPException(status_code=403)
 
     if(process_exists(column="computation_id", value=computation_id) == False):
         raise HTTPException(
