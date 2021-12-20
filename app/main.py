@@ -48,12 +48,9 @@ async def list_user_processes(req: Request):
     role = req.headers.get("Role")
 
     if(role != "admin"):
-        print("Hellooo")
         detail = req.headers
-        print(detail)
-        raise HTTPException(status_code=403, detail = req.headers)
+        raise HTTPException(status_code=403)
 
-    print("2Hello")
 
     print(DATABASE_NAME)
     # Getting the GetMonitorProcess properties to use in sql statement,
@@ -89,8 +86,9 @@ async def list_user_processes(user_id: str, req: Request):
 
     #Both admin and user has access to this endpoint. But it needs to be to a specific user. 
     userId = req.headers.get("UserId")
+    role = req.headers.get("Role")
 
-    if(userId != user_id):
+    if(userId != user_id and role != "admin"):
         raise HTTPException(status_code=403)
 
 
