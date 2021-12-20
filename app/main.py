@@ -174,11 +174,10 @@ async def create_user_process(process: PostMonitorProcess, req: Request):
 async def get_user_process(computation_id: str, req: Request):
     """Just runs sync_get_user_process"""
 
-    # Only admin role has access to this endpoint. And the computation id need to match
+    # Only admin role has access to this endpoint.
     role = req.headers.get("Role")
-    computationID = req.headers.get("computation_id")
 
-    if(role != "admin" and computationID != computation_id):
+    if(role != "admin"):
         raise HTTPException(status_code=403)
 
     return sync_get_user_process(computation_id)
