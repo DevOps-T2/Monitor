@@ -124,9 +124,8 @@ async def delete_user_process(user_id: str, req: Request, response: Response):
 
     # Only the admin role has access to this endponit. 
     role = req.headers.get("Role")
-    userId = req.headers.get("UserId")
 
-    if(role != "admin" and userId != user_id):
+    if(role != "admin"):
         raise HTTPException(status_code=403) 
 
     if(process_exists(column="user_id", value=user_id) == False):
