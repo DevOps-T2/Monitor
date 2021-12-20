@@ -48,8 +48,12 @@ async def list_user_processes(req: Request):
     role = req.headers.get("Role")
 
     if(role != "admin"):
+        print("Hellooo")
+        detail = req.headers
+        print(detail)
         raise HTTPException(status_code=403, detail = req.headers)
 
+    print("2Hello")
 
     print(DATABASE_NAME)
     # Getting the GetMonitorProcess properties to use in sql statement,
