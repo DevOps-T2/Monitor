@@ -275,6 +275,7 @@ def process_exists(column: str, value):
     values: tuple = (value, )
 
     result = readDB(sql, values)
+    print(result)
     process_exists: bool = 0 < result[0][0]
 
     return process_exists
