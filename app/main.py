@@ -186,7 +186,7 @@ async def get_user_process(computation_id: str, req: Request):
 
 @router.delete("/api/monitor/process/{computation_id}")
 @router.delete("/api/monitor/process/{computation_id}/", include_in_schema=False)
-async def delete_user_process(computation_id: str, req: Request):
+async def delete_user_process(computation_id: str, req: Request, response: Response):
     """Delete a single process monitor from the database
 
     Args:
@@ -204,8 +204,8 @@ async def delete_user_process(computation_id: str, req: Request):
         raise HTTPException(status_code=403)
 
     if(process_exists(column="computation_id", value=computation_id) == False):
-        raise HTTPException(
-            status_code=404, detail="A process with computation_id = '%s' does not exist." % computation_id)
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return "No procces exists with the computation_id " + computation_id
 
     sql: str = "DELETE FROM monitor WHERE computation_id = %s"
     writeDB(sql, (computation_id,))
