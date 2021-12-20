@@ -35,7 +35,7 @@ class GetMonitorProcess(BaseModel):
 app = FastAPI()
 router = APIRouter()
 
-@router.get("/api/monitor/processes", response_model=List[GetMonitorProcess])
+@router.get("/api/monitor/processes", response_model=List[GetMonitorProcess], tags=["Monitor"])
 @router.get("/api/monitor/processes/", response_model=List[GetMonitorProcess], include_in_schema=False)
 async def list_user_processes(req: Request):
     """Get all process monitors from all users from the database
@@ -72,7 +72,7 @@ async def list_user_processes(req: Request):
 
     return processes
 
-@router.get("/api/monitor/processes/{user_id}", response_model=List[GetMonitorProcess])
+@router.get("/api/monitor/processes/{user_id}", response_model=List[GetMonitorProcess], tags=["Monitor"])
 @router.get("/api/monitor/processes/{user_id}/", response_model=List[GetMonitorProcess], include_in_schema=False)
 async def list_user_processes(user_id: str, req: Request):
     """Get all process monitors from a specific user from the database
@@ -109,7 +109,7 @@ async def list_user_processes(user_id: str, req: Request):
     return processes
 
 
-@router.delete("/api/monitor/processes/{user_id}")
+@router.delete("/api/monitor/processes/{user_id}", tags=["Monitor"])
 @router.delete("/api/monitor/processes/{user_id}/", include_in_schema=False)
 async def delete_user_process(user_id: str, req: Request, response: Response):
     """Delete all process monitors from a user from the database
@@ -139,7 +139,7 @@ async def delete_user_process(user_id: str, req: Request, response: Response):
     return "Successfully deleted processes with user_id = %s" % user_id
 
 
-@router.post("/api/monitor/process", response_model=GetMonitorProcess)
+@router.post("/api/monitor/process", response_model=GetMonitorProcess, tags=["Monitor"])
 @router.post("/api/monitor/process/", response_model=GetMonitorProcess, include_in_schema=False)
 async def create_user_process(process: PostMonitorProcess, req: Request):
     """Add a process monitor to the database
@@ -169,7 +169,7 @@ async def create_user_process(process: PostMonitorProcess, req: Request):
     return sync_get_user_process(process.computation_id)
 
 
-@router.get("/api/monitor/process/{computation_id}", response_model=GetMonitorProcess)
+@router.get("/api/monitor/process/{computation_id}", response_model=GetMonitorProcess, tags=["Monitor"])
 @router.get("/api/monitor/process/{computation_id}/", response_model=GetMonitorProcess, include_in_schema=False)
 async def get_user_process(computation_id: str, req: Request):
     """Just runs sync_get_user_process"""
@@ -183,7 +183,7 @@ async def get_user_process(computation_id: str, req: Request):
     return sync_get_user_process(computation_id)
 
 
-@router.delete("/api/monitor/process/{computation_id}")
+@router.delete("/api/monitor/process/{computation_id}", tags=["Monitor"])
 @router.delete("/api/monitor/process/{computation_id}/", include_in_schema=False)
 async def delete_user_process(computation_id: str, req: Request, response: Response):
     """Delete a single process monitor from the database
