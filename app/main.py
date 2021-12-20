@@ -1,7 +1,7 @@
 from typing import List
 import os
 
-from fastapi import FastAPI, HTTPException, APIRouter, Request
+from fastapi import FastAPI, HTTPException, APIRouter, Request, Response, status
 from pydantic import BaseModel
 import mysql.connector
 from mysql.connector import Error
@@ -111,7 +111,7 @@ async def list_user_processes(user_id: str, req: Request):
 
 @router.delete("/api/monitor/processes/{user_id}")
 @router.delete("/api/monitor/processes/{user_id}/", include_in_schema=False)
-async def delete_user_process(user_id: str, req: Request):
+async def delete_user_process(user_id: str, req: Request, response: Response):
     """Delete all process monitors from a user from the database
 
     Args:
@@ -129,11 +129,9 @@ async def delete_user_process(user_id: str, req: Request):
     if(role != "admin" and userId != user_id):
         raise HTTPException(status_code=403) 
 
-
-
     if(process_exists(column="user_id", value=user_id) == False):
-        raise HTTPException(
-            status_code=404, detail="No process with user_id = '%s' exists." % user_id)
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return "No proccesses for the user " + user_id
 
     sql: str = "DELETE FROM monitor WHERE user_id = %s"
 
