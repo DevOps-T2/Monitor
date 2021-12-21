@@ -9,11 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-DATABASE_NAME = os.getenv("DATABASE_NAME")
-DATABASE_HOST_READ = os.getenv("DATABASE_HOST_READ")
-DATABASE_HOST_WRITE = os.getenv("DATABASE_HOST_WRITE")
-DATABASE_USER = os.getenv("DATABASE_USER")
-DATABASE_PASSWORD = "" # os.getenv("DATABASE_PASSWORD")
+DATABASE_NAME = "Default" # os.getenv("DATABASE_NAME")
+DATABASE_HOST_READ = "monitor-mysql-read" # os.getenv("DATABASE_HOST_READ")
+DATABASE_HOST_WRITE =  "monitor-mysql-0.monitor-headless" # os.getenv("DATABASE_HOST_WRITE")
+DATABASE_USER = "root" # os.getenv("DATABASE_USER")
+DATABASE_PASSWORD = '' # os.getenv("DATABASE_PASSWORD")
 
 
 class PostMonitorProcess(BaseModel):

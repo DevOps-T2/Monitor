@@ -23,12 +23,6 @@ env:
   GKE_ZONE: europe-west1-b   # TODO: update to cluster zone
   DEPLOYMENT_NAME: monitor # TODO: update to deployment name
   IMAGE: monitor
-  
-  DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-  DATABASE_HOST_READ: ${{ secrets.DATABASE_HOST_READ }}
-  DATABASE_HOST_WRITE: ${{ secrets.DATABASE_HOST_WRITE }}
-  DATABASE_USER: ${{ secrets.DATABASE_USER }}
-  DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 
 jobs:
   setup-build-publish-deploy:
@@ -57,17 +51,6 @@ jobs:
         cluster_name: ${{ env.GKE_CLUSTER }}
         location: ${{ env.GKE_ZONE }}
         credentials: ${{ secrets.GKE_SA_KEY }}
-
-    # Create and populate .env file
-    - name: Create env file
-      run: |
-        touch .env
-        echo DATABASE_NAME=$DATABASE_NAME >> .env
-        echo DATABASE_HOST_READ=$DATABASE_HOST_READ >> .env
-        echo DATABASE_HOST_WRITE=$DATABASE_HOST_WRITE >> .env
-        echo DATABASE_USER=$DATABASE_USER >> .env
-        echo DATABASE_PASSWORD=$DATABASE_PASSWORD >> .env
-        cat .env
 
     # Build the Docker image
     - name: Build
