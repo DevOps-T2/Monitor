@@ -52,14 +52,12 @@ async def list_user_processes(req: Request):
         raise HTTPException(status_code=403)
 
 
-    print(DATABASE_NAME)
     # Getting the GetMonitorProcess properties to use in sql statement,
     # because the order of columns needs to be explicit (i.e. not = '*') because 
     # the query_result has no keys, only values.
     columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
     sql: str = "SELECT %s FROM monitor" % columns
     query_result = readDB(sql)
-    print(query_result)
 
     processes: List[GetMonitorProcess] = []
     for process in query_result:
@@ -274,7 +272,6 @@ def process_exists(column: str, value):
     values: tuple = (value, )
 
     result = readDB(sql, values)
-    print(result)
     process_exists: bool = 0 < result[0][0]
 
     return process_exists
