@@ -38,10 +38,7 @@ router = APIRouter()
 @router.get("/api/monitor/processes", response_model=List[GetMonitorProcess], tags=["Monitor"])
 @router.get("/api/monitor/processes/", response_model=List[GetMonitorProcess], include_in_schema=False)
 async def list_user_processes(req: Request):
-    """Get all process monitors from all users from the database
-
-    Returns:
-        List[GetMonitorProcess]: A list of GetMonitorProcesses 
+    """List the resources used by all running processes in the system 
     """
 
     # Only admin has access to this endpoint
@@ -73,13 +70,7 @@ async def list_user_processes(req: Request):
 @router.get("/api/monitor/processes/{user_id}", response_model=List[GetMonitorProcess], tags=["Monitor"])
 @router.get("/api/monitor/processes/{user_id}/", response_model=List[GetMonitorProcess], include_in_schema=False)
 async def list_user_processes(user_id: str, req: Request):
-    """Get all process monitors from a specific user from the database
-
-    Args:
-        user_id (str): The user id
-
-    Returns:
-        List[GetMonitorProcess]: A list of GetMonitorProcesses
+    """List the resources used by all running processes in the system started by a certain user
     """
 
     #Both admin and user has access to this endpoint. But it needs to be to a specific user. 
@@ -110,13 +101,7 @@ async def list_user_processes(user_id: str, req: Request):
 @router.delete("/api/monitor/processes/{user_id}", tags=["Monitor"])
 @router.delete("/api/monitor/processes/{user_id}/", include_in_schema=False)
 async def delete_user_process(user_id: str, req: Request, response: Response):
-    """Delete all process monitors from a user from the database
-
-    Args:
-        user_id (str): A user id
-
-    Returns:
-        str: A status (may change)
+    """Delete the monitored resources from all processes started by a user.
     """
 
 
@@ -140,13 +125,7 @@ async def delete_user_process(user_id: str, req: Request, response: Response):
 @router.post("/api/monitor/process", response_model=GetMonitorProcess, tags=["Monitor"])
 @router.post("/api/monitor/process/", response_model=GetMonitorProcess, include_in_schema=False)
 async def create_user_process(process: PostMonitorProcess, req: Request):
-    """Add a process monitor to the database
-
-    Args:
-        process (GetMonitorProcess): Process data
-
-    Returns:
-        str: A status
+    """Add the resources used by a process to the database
     """
 
     # Only admin role has access to this endpoint.
@@ -170,7 +149,8 @@ async def create_user_process(process: PostMonitorProcess, req: Request):
 @router.get("/api/monitor/process/{computation_id}", response_model=GetMonitorProcess, tags=["Monitor"])
 @router.get("/api/monitor/process/{computation_id}/", response_model=GetMonitorProcess, include_in_schema=False)
 async def get_user_process(computation_id: str, req: Request):
-    """Just runs sync_get_user_process"""
+    """List the resources used by a specific process
+    """
 
     # Only admin role has access to this endpoint.
     role = req.headers.get("Role")
@@ -184,13 +164,8 @@ async def get_user_process(computation_id: str, req: Request):
 @router.delete("/api/monitor/process/{computation_id}", tags=["Monitor"])
 @router.delete("/api/monitor/process/{computation_id}/", include_in_schema=False)
 async def delete_user_process(computation_id: str, req: Request, response: Response):
-    """Delete a single process monitor from the database
-
-    Args:
-        computation_id (str): A computation id
-
-    Returns:
-        str: A status
+    """Delete the monitored resources from a single process started by a user. 
+    (Usually called after a process is done executing).
     """
 
     # Only admin role has access to this endpoint.
@@ -212,15 +187,6 @@ async def delete_user_process(computation_id: str, req: Request, response: Respo
 app.include_router(router)
 
 def sync_get_user_process(computation_id):
-    """Gets a single user process by computation_id. This function was created as a synchronous function,
-    so it can be re-used
-
-    Args:
-        computation_id (int): A computation id
-
-    Returns:
-        (GetMonitorProcess): A single GetMonitorProcess
-    """
     columns = ", ".join(GetMonitorProcess.schema().get("properties").keys()) 
     sql: str = "SELECT %s FROM monitor" % columns + " WHERE computation_id = %s"
     values: tuple = (computation_id,)
